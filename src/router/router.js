@@ -6,7 +6,7 @@ const routes =  createBrowserRouter([
     {
         path:"/",
         element:<MainLayout/>,
-        errorElement : "Home Error Page",
+        errorElement : <div>Aradığınız sayfa bununamamıştır. <a href="/">Ana Sayfa</a></div>,
         children:[
             {
                 index:true,

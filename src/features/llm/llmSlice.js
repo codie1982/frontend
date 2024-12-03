@@ -10,13 +10,46 @@ const initialState = {
   isSuccess: false,
   isLoading: false,
   data: {},
+  questions: [],
 }
-// Register user
-export const searchProduct = createAsyncThunk(
+ 
+export const conversition = createAsyncThunk(
   'llm/promt',
-  async (user, thunkAPI) => {
+  async (input, thunkAPI) => {
     try {
-      return await llmServices.searchllm(user)
+      return await llmServices.conversitionLLM(input)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+export const answerQuestion = createAsyncThunk(
+  'llm/question',
+  async (input, thunkAPI) => {
+    try {
+      return await llmServices.answerQuestion(input)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+export const cancelQuestion = createAsyncThunk(
+  'llm/promt',
+  async (input, thunkAPI) => {
+    try {
+      return await llmServices.cancelQuestion(input)
     } catch (error) {
       const message =
         (error.response &&
@@ -41,22 +74,24 @@ export const llmSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(searchProduct.pending, (state) => {
+      .addCase(conversition.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(searchProduct.fulfilled, (state, action) => {
+      .addCase(conversition.fulfilled, (state, action) => {
         state.isLoading = false
         state.isSuccess = true
         state.isError = false
-        state.message = action.payload.message
-        state.data = action.payload.data
+        state.message = action.payload.data.llm_message
+        state.questions = action.payload.data.questions
       })
-      .addCase(searchProduct.rejected, (state, action) => {
+      .addCase(conversition.rejected, (state, action) => {
         state.isLoading = false
         state.isSuccess = false
         state.isError = true
-        state.message = action.payload.message
+        state.message = action.payload.data.llm_message
         state.data = null
+        state.questions = null
+
       })
   }
 })
